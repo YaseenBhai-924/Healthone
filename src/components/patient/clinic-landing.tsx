@@ -14,9 +14,14 @@ import {
 } from 'lucide-react'
 import { ClinicBrandingProvider } from '@/components/branding/clinic-branding'
 import { ClinicLogo } from '@/components/branding/clinic-logo'
+import { CollectionPharmacyAddress } from '@/components/patient/collection-pharmacy-address'
+import { FeaturedPriceSection } from '@/components/patient/featured-price-section'
 import { Alert, IconBadge } from '@/components/ui'
 import { buttonVariants } from '@/components/ui/button-variants'
-import type { ClinicDto } from '@/lib/api/public-types'
+import type {
+  ClinicDto,
+  FeaturedPriceComparisonDto,
+} from '@/lib/api/public-types'
 import { formatMoney } from '@/lib/format/money'
 import { howItWorks } from '@/lib/patient/copy'
 import type { ClinicBrand } from '@/lib/branding'
@@ -25,9 +30,10 @@ import { cn } from '@/lib/cn'
 const stepIcons = [ClipboardPaste, Package, Mail, CreditCard]
 
 function toBrand(clinic: ClinicDto): ClinicBrand {
+  const label = clinic.pharmacyName?.trim() || clinic.name
   return {
-    name: clinic.name,
-    pharmacyName: '',
+    name: label,
+    pharmacyName: label,
     primaryColor: clinic.brandColour || '#2563eb',
     logoUrl: clinic.logoUrl ?? undefined,
     slug: clinic.slug,
@@ -37,9 +43,11 @@ function toBrand(clinic: ClinicDto): ClinicBrand {
 export function ClinicLanding({
   clinic,
   fromQr,
+  featured = null,
 }: {
   clinic: ClinicDto
   fromQr: boolean
+  featured?: FeaturedPriceComparisonDto | null
 }) {
   useEffect(() => {
     if (!fromQr) return
@@ -55,6 +63,7 @@ export function ClinicLanding({
   }, [clinic.slug, fromQr])
 
   const brand = toBrand(clinic)
+  const displayName = clinic.pharmacyName?.trim() || clinic.name
 
   return (
     <ClinicBrandingProvider brand={brand}>
@@ -62,7 +71,7 @@ export function ClinicLanding({
         <div className="sd-blob sd-blob-a -left-16 top-0 opacity-60" aria-hidden />
         <div className="sd-blob sd-blob-b right-0 top-32 opacity-50" aria-hidden />
 
-        <div className="relative mx-auto w-full max-w-2xl sm:max-w-3xl">
+        <div className="relative mx-auto w-full max-w-2xl space-y-6 sm:max-w-3xl">
           <div className="reveal-up overflow-hidden rounded-hero border border-line bg-surface shadow-lg">
             <div className="relative overflow-hidden sd-mesh px-6 pb-7 pt-7 sm:px-10">
               <div className="sd-dot-grid absolute inset-0 opacity-40" aria-hidden />
@@ -72,7 +81,7 @@ export function ClinicLanding({
                     <ClinicLogo height={36} width={120} />
                     <span className="inline-flex items-center gap-2 rounded-badge border border-brand-200/80 bg-white/90 px-3 py-1 text-xs font-semibold text-brand-700 shadow-sm">
                       <MapPin className="h-3.5 w-3.5" aria-hidden />
-                      <span className="truncate">{clinic.name}</span>
+                      <span className="truncate">{displayName}</span>
                     </span>
                   </div>
                   {fromQr ? (
@@ -99,6 +108,11 @@ export function ClinicLanding({
                   Ordering is temporarily unavailable. Please try again later.
                 </Alert>
               ) : null}
+
+              <CollectionPharmacyAddress
+                pharmacyName={clinic.pharmacyName || clinic.name}
+                pharmacyAddress={clinic.pharmacyAddress}
+              />
 
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.14em] text-brand-700">
@@ -181,6 +195,12 @@ export function ClinicLanding({
               )}
             </div>
           </div>
+
+          <FeaturedPriceSection
+            featured={featured}
+            compact
+            orderHref={`/c/${clinic.slug}/request`}
+          />
         </div>
       </main>
     </ClinicBrandingProvider>

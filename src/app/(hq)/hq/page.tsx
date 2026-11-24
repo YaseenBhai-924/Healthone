@@ -75,9 +75,16 @@ export default async function HqPage({
         <h1 className="font-display text-2xl font-extrabold tracking-tight text-heading">
           HQ overview
         </h1>
-        <Alert variant="warning" title="Could not load dashboard">
-          The API is still starting or busy (common after a local restart). Wait
-          a few seconds and refresh this page.
+        <Alert variant="warning" title="Dashboard offline (static demo)">
+          Live KPIs need the API. Use{" "}
+          <a className="font-semibold underline" href="/hq/pharmacies">
+            Pharmacies
+          </a>{" "}
+          and{" "}
+          <a className="font-semibold underline" href="/hq/price-comparisons">
+            Price comparisons
+          </a>{" "}
+          — those work from the static store without a backend.
         </Alert>
       </div>
     );

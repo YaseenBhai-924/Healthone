@@ -13,12 +13,27 @@ import "server-only";
 import { auth } from "@/auth";
 import { redirect } from "next/navigation";
 import type { Session } from "next-auth";
+import { isStaticDemo } from "@/lib/static/is-static-demo";
 
 export type CurrentUser = Session["user"];
+
+const STATIC_HQ_USER: CurrentUser = {
+  name: "Static HQ demo",
+  role: "SuperAdmin",
+  pharmacyName: null,
+  accessDenied: false,
+  pharmacyAssignmentProblem: false,
+  apiError: false,
+  error: null,
+};
 
 export async function requireRole(
   role: "PharmacyStaff" | "SuperAdmin",
 ): Promise<CurrentUser> {
+  if (isStaticDemo() && role === "SuperAdmin") {
+    return STATIC_HQ_USER;
+  }
+
   const session = await auth();
 
   // No session, expired, or token refresh error → sign-in.

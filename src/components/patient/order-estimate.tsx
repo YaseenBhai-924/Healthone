@@ -3,6 +3,8 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { AnimatedNumber, SegmentedControl, buttonVariants } from '@/components/ui'
+import { CollectionPharmacyAddress } from '@/components/patient/collection-pharmacy-address'
+import type { PharmacyAddressDto } from '@/lib/api/public-types'
 import { formatMoney } from '@/lib/format/money'
 import { orderPage } from '@/lib/patient/copy'
 import { cn } from '@/lib/cn'
@@ -14,6 +16,9 @@ export function OrderEstimate({
   deliveryFeeCents,
   currency,
   canOrder,
+  pharmacyName,
+  pharmacyAddress,
+  unavailableMessage,
 }: {
   clinicName: string
   clinicHref: string
@@ -21,16 +26,20 @@ export function OrderEstimate({
   deliveryFeeCents: number
   currency: string
   canOrder: boolean
+  pharmacyName?: string | null
+  pharmacyAddress?: PharmacyAddressDto | null
+  unavailableMessage?: string | null
 }) {
   const [mode, setMode] = useState<'collection' | 'delivery'>('collection')
   const delivery = mode === 'delivery' ? deliveryFeeCents : 0
   const total = priceCents + delivery
   const fmt = (n: number) => formatMoney(n, currency)
+  const displayName = pharmacyName?.trim() || clinicName
 
   return (
     <div className="rounded-hero border border-line bg-surface/95 p-6 shadow-md backdrop-blur-sm">
       <p className="text-sm text-ink-muted">Ordering with</p>
-      <p className="font-display text-lg font-bold text-heading">{clinicName}</p>
+      <p className="font-display text-lg font-bold text-heading">{displayName}</p>
 
       <div className="mt-5">
         <SegmentedControl
@@ -43,6 +52,14 @@ export function OrderEstimate({
           ]}
         />
       </div>
+
+      {mode === 'collection' ? (
+        <CollectionPharmacyAddress
+          className="mt-4"
+          pharmacyName={pharmacyName || clinicName}
+          pharmacyAddress={pharmacyAddress}
+        />
+      ) : null}
 
       <dl className="mt-5 space-y-2 text-sm">
         <div className="flex justify-between gap-3">
@@ -78,7 +95,8 @@ export function OrderEstimate({
         </Link>
       ) : (
         <p className="mt-5 rounded-control bg-warning-bg px-3 py-2 text-sm font-semibold text-warning">
-          Ordering is paused for this clinic. Please try again later.
+          {unavailableMessage?.trim() ||
+            'Ordering is unavailable right now. Please try again later.'}
         </p>
       )}
 

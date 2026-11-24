@@ -17,10 +17,21 @@ import { cn } from "@/lib/cn";
 export default async function HqClinicsPage() {
   await requireRole("SuperAdmin");
 
-  const [clinicsResult, pricingResult] = await Promise.all([
-    listClinics(),
-    listPricingItems(),
-  ]);
+  let clinicsResult: Awaited<ReturnType<typeof listClinics>>;
+  let pricingResult: Awaited<ReturnType<typeof listPricingItems>>;
+  try {
+    ;[clinicsResult, pricingResult] = await Promise.all([
+      listClinics(),
+      listPricingItems(),
+    ]);
+  } catch {
+    return (
+      <Alert variant="warning" title="Clinics need the API">
+        Static demo covers Pharmacies and Price comparisons without a backend.
+        Clinic CRUD stays API-backed.
+      </Alert>
+    );
+  }
 
   if (
     clinicsResult.status === "forbidden" ||
@@ -40,8 +51,9 @@ export default async function HqClinicsPage() {
   }
   if (clinicsResult.status !== "ok" || pricingResult.status !== "ok") {
     return (
-      <Alert variant="warning" title="Could not load clinics">
-        The API is unavailable. Refresh and try again.
+      <Alert variant="warning" title="Clinics need the API">
+        Static demo covers Pharmacies and Price comparisons without a backend.
+        Clinic CRUD stays API-backed.
       </Alert>
     );
   }

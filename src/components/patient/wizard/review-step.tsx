@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import Link from 'next/link'
 import { Alert, Button, Checkbox } from '@/components/ui'
+import { CollectionPharmacyAddress } from '@/components/patient/collection-pharmacy-address'
 import type { ClinicDto } from '@/lib/api/public-types'
 import { formatMoney } from '@/lib/format/money'
 import { PRIVACY_VERSION, TERMS_VERSION } from '@/lib/patient/policies'
@@ -78,6 +79,13 @@ export function ReviewStep({
             value={`${details.address.line1}, ${details.address.suburb} ${details.address.state} ${details.address.postcode}`}
           />
         )}
+        {details.fulfilmentType === 'Collection' ? (
+          <CollectionPharmacyAddress
+            className="mt-1"
+            pharmacyName={clinic.pharmacyName || clinic.name}
+            pharmacyAddress={clinic.pharmacyAddress}
+          />
+        ) : null}
         <button
           type="button"
           className="rounded-sm text-sm font-semibold text-brand-700 hover:underline focus-ring"

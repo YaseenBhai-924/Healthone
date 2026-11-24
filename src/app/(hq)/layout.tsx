@@ -11,6 +11,11 @@ const NAV: PortalNavItem[] = [
   { href: "/hq", label: "Dashboard", icon: "layout-dashboard" },
   { href: "/hq/pharmacies", label: "Pharmacies", icon: "building-2" },
   { href: "/hq/clinics", label: "Clinics", icon: "hospital" },
+  {
+    href: "/hq/price-comparisons",
+    label: "Price comparisons",
+    icon: "clipboard-list",
+  },
 ];
 
 export default async function HqLayout({

@@ -15,10 +15,15 @@ import { Container, Section } from '@/components/site'
 import { OrderJourneyPreview } from '@/components/patient/order-journey-preview'
 import { HowItWorksStepper } from '@/components/patient/how-it-works-stepper'
 import { FulfilmentToggle } from '@/components/patient/fulfilment-toggle'
+import { FeaturedPriceSection } from '@/components/patient/featured-price-section'
 import { TrustBento } from '@/components/patient/trust-bento'
 import { FaqSection } from '@/components/patient/faq-section'
 import { CtaBand } from '@/components/patient/cta-band'
 import { heroChips, homeHero, proofPoints } from '@/lib/patient/copy'
+import {
+  getDefaultClinicServer,
+  getFeaturedComparisonServer,
+} from '@/lib/api/public-server'
 import type { Metadata } from 'next'
 
 export const metadata: Metadata = {
@@ -50,9 +55,13 @@ function Underline() {
   )
 }
 
-export default function HomePage() {
+export default async function HomePage() {
   const highlight = homeHero.highlightWord
   const parts = homeHero.headline.split(new RegExp(`(${highlight})`, 'i'))
+  const [featured, clinic] = await Promise.all([
+    getFeaturedComparisonServer(),
+    getDefaultClinicServer(),
+  ])
 
   return (
     <main>
@@ -167,9 +176,14 @@ export default function HomePage() {
         />
       </Section>
 
+      {/* 3b. FEATURED FAIR PRICING — split marketing + comparison card */}
+      <Section id="fair-pricing" tone="canvas">
+        <FeaturedPriceSection featured={featured} orderHref="/order" />
+      </Section>
+
       {/* 4. DELIVERY OR COLLECTION */}
       <Section
-        tone="canvas"
+        tone="white"
         eyebrow="Fulfilment"
         title={
           <>
@@ -178,7 +192,10 @@ export default function HomePage() {
         }
         lead="Same secure flow either way. Fees that apply are shown before you pay."
       >
-        <FulfilmentToggle />
+        <FulfilmentToggle
+          pharmacyName={clinic?.pharmacyName}
+          pharmacyAddress={clinic?.pharmacyAddress}
+        />
       </Section>
 
       {/* 5. TRUST */}

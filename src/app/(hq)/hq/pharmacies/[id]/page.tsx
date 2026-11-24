@@ -7,6 +7,7 @@ import { ArrowLeft, Eye } from "lucide-react";
 import { requireRole } from "@/lib/auth/guards";
 import { getPharmacy } from "@/lib/api/hq-pharmacies";
 import { listRequests } from "@/lib/api/admin-requests";
+import type { PagedRequests } from "@/lib/api/admin-types";
 import { parseQueueFilter } from "@/lib/admin/request-labels";
 import { formatMoney } from "@/lib/format/money";
 import { Alert } from "@/components/ui/alert";
@@ -47,23 +48,30 @@ export default async function HqPharmacyOrdersPage({
   }
 
   const pharmacy = pharmacyResult.data;
-  const ordersResult = await listRequests({
-    pharmacyId: id,
-    status: statusFilter,
-    search,
-    page,
-  });
+  let ordersUnavailable = true;
+  let data: PagedRequests = {
+    items: [],
+    page: 1,
+    pageSize: 20,
+    totalCount: 0,
+    statusCounts: {},
+  };
 
-  if (ordersResult.status === "forbidden") redirect("/forbidden");
-  if (ordersResult.status !== "ok") {
-    return (
-      <Alert variant="warning" title="Could not load orders">
-        The API is unavailable. Refresh and try again.
-      </Alert>
-    );
+  try {
+    const ordersResult = await listRequests({
+      pharmacyId: id,
+      status: statusFilter,
+      search,
+      page,
+    });
+    if (ordersResult.status === "forbidden") redirect("/forbidden");
+    if (ordersResult.status === "ok") {
+      ordersUnavailable = false;
+      data = ordersResult.data;
+    }
+  } catch {
+    ordersUnavailable = true;
   }
-
-  const data = ordersResult.data;
   const basePath = `/hq/pharmacies/${id}`;
 
   return (
@@ -103,6 +111,17 @@ export default async function HqPharmacyOrdersPage({
               ? ` · ${pharmacy.newRequests} awaiting`
               : ""}
           </p>
+          {pharmacy.address ? (
+            <p className="mt-2 text-sm text-ink">
+              {[
+                pharmacy.address.line1,
+                pharmacy.address.line2,
+                `${pharmacy.address.suburb} ${pharmacy.address.state} ${pharmacy.address.postcode}`,
+              ]
+                .filter(Boolean)
+                .join(", ")}
+            </p>
+          ) : null}
         </div>
         <Link
           href={`/hq/pharmacies/${id}/edit`}
@@ -112,28 +131,35 @@ export default async function HqPharmacyOrdersPage({
         </Link>
       </header>
 
-      <Card className="overflow-hidden p-0">
-        <div className="border-b border-subtle px-5 py-4">
-          <p className="font-bold text-heading">Orders</p>
-          <p className="mt-0.5 text-xs text-fg-muted">
-            Open a row for read-only detail
-          </p>
-        </div>
-        <RequestTable
-          items={data.items}
-          detailHref={(requestId) =>
-            `/hq/pharmacies/${id}/requests/${requestId}`
-          }
-        />
-        <RequestPagination
-          page={data.page}
-          pageSize={data.pageSize}
-          totalCount={data.totalCount}
-          status={query.status}
-          search={search}
-          basePath={basePath}
-        />
-      </Card>
+      {ordersUnavailable ? (
+        <Alert variant="warning" title="Orders unavailable">
+          Order history needs the API. Pharmacy details and address above still
+          work in static demo mode.
+        </Alert>
+      ) : (
+        <Card className="overflow-hidden p-0">
+          <div className="border-b border-subtle px-5 py-4">
+            <p className="font-bold text-heading">Orders</p>
+            <p className="mt-0.5 text-xs text-fg-muted">
+              Open a row for read-only detail
+            </p>
+          </div>
+          <RequestTable
+            items={data.items}
+            detailHref={(requestId) =>
+              `/hq/pharmacies/${id}/requests/${requestId}`
+            }
+          />
+          <RequestPagination
+            page={data.page}
+            pageSize={data.pageSize}
+            totalCount={data.totalCount}
+            status={query.status}
+            search={search}
+            basePath={basePath}
+          />
+        </Card>
+      )}
     </div>
   );
 }

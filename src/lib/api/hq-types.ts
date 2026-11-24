@@ -26,6 +26,14 @@ export type TimeseriesPoint = {
   averageOrderCents: number;
 };
 
+export type PharmacyAddress = {
+  line1: string;
+  line2?: string | null;
+  suburb: string;
+  state: string;
+  postcode: string;
+};
+
 export type PharmacyListItem = {
   id: string;
   name: string;
@@ -35,6 +43,7 @@ export type PharmacyListItem = {
   orders: number;
   grossCents: number;
   newRequests: number;
+  address: PharmacyAddress;
 };
 
 export type PharmacyCommand = {
@@ -42,6 +51,31 @@ export type PharmacyCommand = {
   alertRecipients: string[];
   entraGroupId: string;
   isActive: boolean;
+  address: PharmacyAddress;
+};
+
+export type PriceComparisonCompetitor = {
+  pharmacyName: string;
+  priceCents: number;
+};
+
+export type PriceComparisonItem = {
+  id: string;
+  medicineName: string;
+  ourPriceCents: number;
+  partnerPharmacyId: string;
+  partnerPharmacyName: string;
+  notes: string | null;
+  competitors: PriceComparisonCompetitor[];
+  updatedAt: string;
+};
+
+export type PriceComparisonCommand = {
+  medicineName: string;
+  ourPriceCents: number;
+  partnerPharmacyId: string;
+  notes?: string | null;
+  competitors: PriceComparisonCompetitor[];
 };
 
 export type ClinicAdminItem = {

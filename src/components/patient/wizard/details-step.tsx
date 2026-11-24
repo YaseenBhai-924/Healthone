@@ -14,6 +14,8 @@ import {
   Select,
   Textarea,
 } from '@/components/ui'
+import { CollectionPharmacyAddress } from '@/components/patient/collection-pharmacy-address'
+import type { PharmacyAddressDto } from '@/lib/api/public-types'
 import {
   AU_STATE_OPTIONS,
   detailsSchema,
@@ -49,10 +51,14 @@ export function DetailsStep({
   defaultValues,
   onContinue,
   onBack,
+  pharmacyName,
+  pharmacyAddress,
 }: {
   defaultValues?: Partial<DetailsFormValues>
   onContinue: (values: DetailsFormValues, scriptFile: File | null) => void
   onBack: () => void
+  pharmacyName?: string | null
+  pharmacyAddress?: PharmacyAddressDto | null
 }) {
   const fileInputRef = useRef<HTMLInputElement>(null)
   const scriptFileRef = useRef<File | null>(null)
@@ -335,6 +341,13 @@ export function DetailsStep({
           ))}
         </div>
         <input type="hidden" {...register('fulfilmentType')} />
+        {fulfilment === 'Collection' ? (
+          <CollectionPharmacyAddress
+            className="mt-3"
+            pharmacyName={pharmacyName}
+            pharmacyAddress={pharmacyAddress}
+          />
+        ) : null}
       </fieldset>
 
       {fulfilment === 'Delivery' && (

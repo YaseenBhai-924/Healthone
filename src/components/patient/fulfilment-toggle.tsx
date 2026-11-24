@@ -3,6 +3,8 @@
 import { useState, type ReactNode } from 'react'
 import { Check, Store, Truck } from 'lucide-react'
 import { SegmentedControl } from '@/components/ui'
+import { CollectionPharmacyAddress } from '@/components/patient/collection-pharmacy-address'
+import type { PharmacyAddressDto } from '@/lib/api/public-types'
 import { CollectScene, DeliveryScene } from './fulfilment-scenes'
 import { cn } from '@/lib/cn'
 
@@ -13,6 +15,7 @@ function FulfilmentPanel({
   icon,
   chip,
   scene,
+  footer,
 }: {
   active: boolean
   title: string
@@ -20,6 +23,7 @@ function FulfilmentPanel({
   icon: ReactNode
   chip: string
   scene: ReactNode
+  footer?: ReactNode
 }) {
   return (
     <div
@@ -45,6 +49,7 @@ function FulfilmentPanel({
             </li>
           ))}
         </ul>
+        {footer ? <div className="mt-5">{footer}</div> : null}
         <p className="mt-6 inline-flex w-fit items-center rounded-full bg-brand-50 px-3.5 py-1.5 text-[13px] font-medium text-brand-700 ring-1 ring-brand-100">
           {chip}
         </p>
@@ -63,7 +68,13 @@ function FulfilmentPanel({
   )
 }
 
-export function FulfilmentToggle() {
+export function FulfilmentToggle({
+  pharmacyName,
+  pharmacyAddress,
+}: {
+  pharmacyName?: string | null
+  pharmacyAddress?: PharmacyAddressDto | null
+} = {}) {
   const [mode, setMode] = useState<'collection' | 'delivery'>('collection')
 
   return (
@@ -86,6 +97,12 @@ export function FulfilmentToggle() {
           icon={<Store className="h-6 w-6" aria-hidden />}
           chip="No delivery fee on collection orders"
           scene={<CollectScene className="h-auto w-full max-w-[460px]" />}
+          footer={
+            <CollectionPharmacyAddress
+              pharmacyName={pharmacyName}
+              pharmacyAddress={pharmacyAddress}
+            />
+          }
           bullets={[
             "Pick up from your clinic's partner pharmacy when ready.",
             'Status updates arrive on your private email link.',

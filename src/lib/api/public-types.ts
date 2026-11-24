@@ -18,6 +18,14 @@ export type PaymentStatus =
   | 'Refunded'
   | 'RefundFailed'
 
+export interface PharmacyAddressDto {
+  line1: string
+  line2?: string | null
+  suburb: string
+  state: string
+  postcode: string
+}
+
 export interface ClinicDto {
   slug: string
   name: string
@@ -27,6 +35,25 @@ export interface ClinicDto {
   deliveryFeeCents: number
   currency: string
   orderingEnabled: boolean
+  /** Partner pharmacy display name (prefer over clinic name in patient UI). */
+  pharmacyName?: string | null
+  /** Collection location; omit/null when unavailable. */
+  pharmacyAddress?: PharmacyAddressDto | null
+}
+
+export interface FeaturedCompetitorDto {
+  pharmacyName: string
+  priceCents: number
+  deltaCents: number
+}
+
+export interface FeaturedPriceComparisonDto {
+  medicineName: string
+  ourPriceCents: number
+  partnerPharmacyName: string
+  currency: string
+  maxSavingCents: number
+  competitors: FeaturedCompetitorDto[]
 }
 
 export interface AddressDto {

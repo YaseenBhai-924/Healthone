@@ -4,8 +4,7 @@ import { PageHero, Container, pageHeroContentClass } from '@/components/site'
 import { OrderEstimate } from '@/components/patient/order-estimate'
 import { EmailLinkArt, SmsTokenArt } from '@/components/patient/illustrations'
 import { howItWorks, orderPage } from '@/lib/patient/copy'
-import { DEFAULT_CLINIC_SLUG } from '@/lib/patient/defaults'
-import { mockClinic } from '@/lib/patient/mock-clinic'
+import { clinicDisplayName } from '@/lib/patient/mock-clinic'
 import { getDefaultClinicServer } from '@/lib/api/public-server'
 
 export const metadata: Metadata = {
@@ -15,10 +14,10 @@ export const metadata: Metadata = {
 }
 
 export default async function OrderPage() {
-  const clinic = (await getDefaultClinicServer()) ?? mockClinic()
-  // Opens the HTML-parity upfront flow (product + pay now).
-  const clinicHref = `/c/${clinic.slug || DEFAULT_CLINIC_SLUG}/request`
-  const canOrder = clinic.orderingEnabled !== false
+  const clinic = await getDefaultClinicServer()
+  const canOrder = Boolean(clinic?.orderingEnabled)
+  const clinicHref = clinic ? `/c/${clinic.slug}/request` : '#'
+  const displayName = clinic ? clinicDisplayName(clinic) : 'Partner pharmacy'
 
   return (
     <main>
@@ -89,12 +88,19 @@ export default async function OrderPage() {
 
         <div className="lg:sticky lg:top-24 lg:self-start space-y-3">
           <OrderEstimate
-            clinicName={clinic.name}
+            clinicName={displayName}
             clinicHref={clinicHref}
-            priceCents={clinic.priceCents}
-            deliveryFeeCents={clinic.deliveryFeeCents}
-            currency={clinic.currency}
+            priceCents={clinic?.priceCents ?? 0}
+            deliveryFeeCents={clinic?.deliveryFeeCents ?? 0}
+            currency={clinic?.currency ?? 'AUD'}
             canOrder={canOrder}
+            pharmacyName={clinic?.pharmacyName}
+            pharmacyAddress={clinic?.pharmacyAddress}
+            unavailableMessage={
+              clinic
+                ? 'Ordering is paused for this clinic. Please try again later.'
+                : 'Ordering is temporarily unavailable. We could not load a clinic — please try again shortly.'
+            }
           />
         </div>
       </Container>

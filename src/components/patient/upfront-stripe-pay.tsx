@@ -6,12 +6,18 @@ import { Alert, Button, Field, Input, Label } from '@/components/ui'
 
 type Props = {
   amountLabel: string
+  pharmacyName?: string | null
   onBack: () => void
   onPaid: () => void
 }
 
 /** Local dummy Stripe — no secret key, no real charge. Accepts test card 4242… */
-export function UpfrontStripePay({ amountLabel, onBack, onPaid }: Props) {
+export function UpfrontStripePay({
+  amountLabel,
+  pharmacyName,
+  onBack,
+  onPaid,
+}: Props) {
   const [card, setCard] = useState('4242 4242 4242 4242')
   const [exp, setExp] = useState('12 / 34')
   const [cvc, setCvc] = useState('123')
@@ -56,7 +62,7 @@ export function UpfrontStripePay({ amountLabel, onBack, onPaid }: Props) {
       <div className="rounded-card border border-line bg-canvas/80 px-4 py-3 text-sm leading-relaxed text-ink-muted">
         <p className="inline-flex items-center gap-2 font-semibold text-heading">
           <ShieldCheck className="h-4 w-4 text-brand-600" aria-hidden />
-          Stripe test (dummy)
+          {pharmacyName?.trim() || 'Partner pharmacy'}
         </p>
         <p className="mt-1.5">
           No real charge. Card details stay in this browser for the demo only.

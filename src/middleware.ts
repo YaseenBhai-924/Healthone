@@ -27,6 +27,7 @@ import {
   buildContentSecurityPolicy,
   createCspNonce,
 } from '@/lib/security/csp'
+import { isStaticDemo } from '@/lib/static/is-static-demo'
 import type { Session } from 'next-auth'
 
 const { auth } = NextAuth(authConfig)
@@ -130,6 +131,11 @@ export default auth((req) => {
   const isHqRoute = pathname.startsWith('/hq')
 
   if (isAdminRoute || isHqRoute) {
+    // Frontend-only static demo: allow HQ without Entra / API.
+    if (isHqRoute && isStaticDemo()) {
+      return applySecurityHeaders(req)
+    }
+
     const requiredRole: 'PharmacyStaff' | 'SuperAdmin' = isAdminRoute
       ? 'PharmacyStaff'
       : 'SuperAdmin'

@@ -27,8 +27,8 @@ import { ReviewStep } from './review-step'
 
 function toBrand(clinic: ClinicDto): ClinicBrand {
   return {
-    name: clinic.name,
-    pharmacyName: '',
+    name: clinic.pharmacyName?.trim() || clinic.name,
+    pharmacyName: clinic.pharmacyName?.trim() || clinic.name,
     primaryColor: clinic.brandColour || '#2563eb',
     logoUrl: clinic.logoUrl ?? undefined,
     slug: clinic.slug,
@@ -188,7 +188,7 @@ export function RequestWizard({ clinic }: { clinic: ClinicDto }) {
             <div className="flex min-w-0 items-center gap-3">
               <ClinicLogo height={32} width={108} />
               <span className="truncate rounded-badge border border-brand-200/80 bg-white/90 px-3 py-1 text-xs font-semibold text-brand-700 shadow-sm">
-                {clinic.name}
+                {clinic.pharmacyName?.trim() || clinic.name}
               </span>
             </div>
             {showStepper ? (
@@ -217,6 +217,8 @@ export function RequestWizard({ clinic }: { clinic: ClinicDto }) {
               {!needsResumeChoice && step === 0 && (
                 <DetailsStep
                   defaultValues={details ?? undefined}
+                  pharmacyName={clinic.pharmacyName || clinic.name}
+                  pharmacyAddress={clinic.pharmacyAddress}
                   onBack={() => router.push(`/c/${clinic.slug}`)}
                   onContinue={(values, file) => {
                     setDetails(values)

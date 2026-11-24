@@ -17,7 +17,9 @@ import {
 import { Button, Card, CardBody, Input, Label, Field } from '@/components/ui'
 import { BrandMark } from '@/components/site/brand-mark'
 import { SiteHeader } from '@/components/site/site-header'
+import { CollectionPharmacyAddress } from '@/components/patient/collection-pharmacy-address'
 import { UpfrontStripePay } from '@/components/patient/upfront-stripe-pay'
+import type { PharmacyAddressDto } from '@/lib/api/public-types'
 import { cn } from '@/lib/cn'
 import { patientFontClass } from '@/lib/patient/fonts'
 import {
@@ -157,10 +159,15 @@ function NavRow({
 }
 
 export function UpfrontFlow({
-  clinicName = 'Riverside Medical Clinic',
+  clinicName = 'Harbour Partner Pharmacy',
+  pharmacyName,
+  pharmacyAddress,
 }: {
   clinicName?: string
+  pharmacyName?: string | null
+  pharmacyAddress?: PharmacyAddressDto | null
 }) {
+  const collectionName = pharmacyName?.trim() || clinicName
   const [shell, setShell] = useState<Shell>('patient')
   const [step, setStep] = useState<PatientStep>(0)
   const [S, setS] = useState<PatientState>({
@@ -953,7 +960,12 @@ export function UpfrontFlow({
                       }
                     />
                   </Field>
-                ) : null}
+                ) : (
+                  <CollectionPharmacyAddress
+                    pharmacyName={collectionName}
+                    pharmacyAddress={pharmacyAddress}
+                  />
+                )}
               </CardBody>
             </Card>
             <Card className="border-line bg-surface shadow-md">
@@ -988,7 +1000,12 @@ export function UpfrontFlow({
                 <Row label="Fulfilment" value={S.ful} />
                 {S.ful === 'Delivery' ? (
                   <Row label="Address" value={S.ad} />
-                ) : null}
+                ) : (
+                  <CollectionPharmacyAddress
+                    pharmacyName={collectionName}
+                    pharmacyAddress={pharmacyAddress}
+                  />
+                )}
                 <hr className="border-line" />
                 <ProductCard />
                 <div className="flex items-center justify-between gap-3 pt-1">
@@ -1048,6 +1065,7 @@ export function UpfrontFlow({
                 </div>
                 <UpfrontStripePay
                   amountLabel={money(PRODUCT.price)}
+                  pharmacyName={collectionName}
                   onBack={() => go(3)}
                   onPaid={completePaid}
                 />
