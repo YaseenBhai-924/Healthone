@@ -2,6 +2,7 @@
  * HealthOne Super Admin dashboard (task 6.2.2).
  * Network KPIs, period toggle, date/pharmacy filters, chart + accessible table.
  */
+import Link from "next/link";
 import { redirect } from "next/navigation";
 import {
   Activity,
@@ -77,13 +78,13 @@ export default async function HqPage({
         </h1>
         <Alert variant="warning" title="Dashboard offline (static demo)">
           Live KPIs need the API. Use{" "}
-          <a className="font-semibold underline" href="/hq/pharmacies">
+          <Link className="font-semibold underline" href="/hq/pharmacies">
             Pharmacies
-          </a>{" "}
+          </Link>{" "}
           and{" "}
-          <a className="font-semibold underline" href="/hq/price-comparisons">
+          <Link className="font-semibold underline" href="/hq/price-comparisons">
             Price comparisons
-          </a>{" "}
+          </Link>{" "}
           — those work from the static store without a backend.
         </Alert>
       </div>
