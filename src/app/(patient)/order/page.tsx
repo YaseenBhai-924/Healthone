@@ -4,7 +4,8 @@ import { PageHero, Container, pageHeroContentClass } from '@/components/site'
 import { OrderEstimate } from '@/components/patient/order-estimate'
 import { EmailLinkArt, SmsTokenArt } from '@/components/patient/illustrations'
 import { howItWorks, orderPage } from '@/lib/patient/copy'
-import { clinicDisplayName } from '@/lib/patient/mock-clinic'
+import { DEFAULT_CLINIC_SLUG } from '@/lib/patient/defaults'
+import { clinicDisplayName, mockClinic } from '@/lib/patient/mock-clinic'
 import { getDefaultClinicServer } from '@/lib/api/public-server'
 
 export const metadata: Metadata = {
@@ -14,10 +15,11 @@ export const metadata: Metadata = {
 }
 
 export default async function OrderPage() {
-  const clinic = await getDefaultClinicServer()
-  const canOrder = Boolean(clinic?.orderingEnabled)
-  const clinicHref = clinic ? `/c/${clinic.slug}/request` : '#'
-  const displayName = clinic ? clinicDisplayName(clinic) : 'Partner pharmacy'
+  // Fall back to seeded mock when the public API is down (local / Vercel demo).
+  const clinic = (await getDefaultClinicServer()) ?? mockClinic()
+  const canOrder = clinic.orderingEnabled !== false
+  const clinicHref = `/c/${clinic.slug || DEFAULT_CLINIC_SLUG}/request`
+  const displayName = clinicDisplayName(clinic)
 
   return (
     <main>
@@ -90,17 +92,13 @@ export default async function OrderPage() {
           <OrderEstimate
             clinicName={displayName}
             clinicHref={clinicHref}
-            priceCents={clinic?.priceCents ?? 0}
-            deliveryFeeCents={clinic?.deliveryFeeCents ?? 0}
-            currency={clinic?.currency ?? 'AUD'}
+            priceCents={clinic.priceCents}
+            deliveryFeeCents={clinic.deliveryFeeCents}
+            currency={clinic.currency}
             canOrder={canOrder}
-            pharmacyName={clinic?.pharmacyName}
-            pharmacyAddress={clinic?.pharmacyAddress}
-            unavailableMessage={
-              clinic
-                ? 'Ordering is paused for this clinic. Please try again later.'
-                : 'Ordering is temporarily unavailable. We could not load a clinic — please try again shortly.'
-            }
+            pharmacyName={clinic.pharmacyName}
+            pharmacyAddress={clinic.pharmacyAddress}
+            unavailableMessage="Ordering is paused for this clinic. Please try again later."
           />
         </div>
       </Container>
